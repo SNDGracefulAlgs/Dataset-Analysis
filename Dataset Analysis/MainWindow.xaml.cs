@@ -22,6 +22,7 @@ namespace Dataset_Analysis
     public partial class MainWindow : Window
     {
         public List<string> atributesList;
+        public Dictionary<string, List<string>> atributesDomain;
         public List<Precedent> precedentsList;
         public MainWindow()
         {
@@ -32,6 +33,7 @@ namespace Dataset_Analysis
         private void connectToCSVButton_Click(object sender, RoutedEventArgs e)
         {
             string filePath = filePathTextBox.Text;
+            Dictionary<string, List<string>> atributesNewDomain = new Dictionary<string, List<string>>();
             StreamReader sr = new StreamReader(filePath);
             atributesList = new List<string>();
             string headerStr;
@@ -72,7 +74,12 @@ namespace Dataset_Analysis
                 precedentsList.Add(precedentNewInstance);
             }
 
-            infoTextBox.Text ="Precedents count= " + precedentsList.Count;
+            foreach(string atribute in atributesList)
+            {
+                atributesNewDomain.Add(atribute, (precedentsList.Select(p => p.attributes[atribute]).Distinct()).ToList());
+            }
+            atributesDomain = atributesNewDomain;
+            infoTextBox.Text = "Precedents count= " + precedentsList.Count;
 
             atributesComboBox1.ItemsSource = atributesList;
             atributesComboBox1.SelectedIndex = 29;
@@ -84,10 +91,12 @@ namespace Dataset_Analysis
             makeDistributionButton.IsEnabled = true;
             atributesComboBox1.IsEnabled = true;
             atributesComboBox2.IsEnabled = true;
+
+            bolemisationMenuItem.IsEnabled = true;
         }
 
 
-    
+
 
         private void atributesComboBox1_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -101,7 +110,7 @@ namespace Dataset_Analysis
 
         private void makeDistributionButton_Click(object sender, RoutedEventArgs e)
         {
-           List<string> atr2ValuesList =  (precedentsList.Select(p => p.attributes[atributesComboBox2.Text]).Distinct()).ToList();
+            List<string> atr2ValuesList = (precedentsList.Select(p => p.attributes[atributesComboBox2.Text]).Distinct()).ToList();
             List<string> atr1ValuesList = (precedentsList.Select(p => p.attributes[atributesComboBox1.Text]).Distinct()).ToList();
             atr2ValuesList.Sort();
             infoTextBox.Text = "";
@@ -110,20 +119,28 @@ namespace Dataset_Analysis
                 infoTextBox.Text += groupValue + ":\n";
                 Dictionary<string, float> valuesDict = new Dictionary<string, float>();
                 int s = 0;
-                foreach(string atr in atr1ValuesList)
+                foreach (string atr in atr1ValuesList)
                 {
                     int val = (((precedentsList.Where(p => p.attributes[atributesComboBox2.Text] == groupValue)).Where(q => q.attributes[atributesComboBox1.Text] == atr)).ToList()).Count;
                     s += val;
                     valuesDict.Add(atr, val);
                 }
-                foreach(string key in valuesDict.Keys)
+                foreach (string key in valuesDict.Keys)
                 {
-                    infoTextBox.Text += "    "+key + "   (abs): " + (float)(valuesDict[key]) / (float)(precedentsList.Count) + "   (rel): "+ (float)(valuesDict[key]) / s + "\n";
+                    infoTextBox.Text += "    " + key + "   (abs): " + (float)(valuesDict[key]) / (float)(precedentsList.Count) + "   (rel): " + (float)(valuesDict[key]) / s + "\n";
                 }
                 valuesDict.Clear();
             }
             atr1ValuesList.Clear();
             atr2ValuesList.Clear();
+        }
+
+        private void bolemisationMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            BoolemisationWnd boolemisationWndInstance = new BoolemisationWnd(precedentsList,atributesDomain);
+            boolemisationWndInstance.Owner = this;
+            this.IsEnabled = false;
+            boolemisationWndInstance.Show();
         }
     }
 }
