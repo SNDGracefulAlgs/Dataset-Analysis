@@ -19,7 +19,7 @@
         <ScrollViewer Margin="10,209,10,10" Grid.ColumnSpan="2">
             <TextBlock x:Name="infoTextBox" TextWrapping="Wrap" Background="#FFDDDDDD"/>
         </ScrollViewer>
-        <Menu x:Name="menu" HorizontalAlignment="Left" Height="21" VerticalAlignment="Top" Width="507" Grid.ColumnSpan="2">
+        <Menu x:Name="menu" Height="18" VerticalAlignment="Top" Grid.ColumnSpan="2">
             <MenuItem Header="Transformations">
                 <MenuItem x:Name="bolemisationMenuItem" Header="Boolemisation" IsEnabled="False" Click="bolemisationMenuItem_Click"/>
             </MenuItem>
